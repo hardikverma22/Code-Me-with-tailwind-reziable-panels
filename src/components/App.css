@@ -1,0 +1,57 @@
+ .CodeMirror {
+     border: 1px solid #eee;
+     height: auto;
+     width: 100%;
+ }
+
+ .cm-theme {
+     height: 100%;
+     width: 100%;
+ }
+
+
+ .cm-editor {
+     max-width: unset !important;
+ }
+
+ :root {
+     --primary: #272822;
+     --secondary: rgb(55 65 81);
+ }
+
+ * {
+     scrollbar-width: thin;
+     scrollbar-color: var(--secondary) var(--primary);
+ }
+
+ /* Chrome, Edge, and Safari */
+ *::-webkit-scrollbar {
+     width: 15px;
+ }
+
+ *::-webkit-scrollbar-track {
+     background: var(--primary);
+     border-radius: 5px;
+ }
+
+ *::-webkit-scrollbar-thumb {
+     background-color: var(--secondary);
+     border-radius: 14px;
+     border: 3px solid var(--primary);
+ }
+
+ /* Hide the up arrow button */
+ ::-webkit-scrollbar-button:start {
+     display: none;
+ }
+
+ /* Hide the down arrow button */
+ ::-webkit-scrollbar-button:end {
+     display: none;
+ }
+
+ /* Firefox */
+ * {
+     scrollbar-width: thin;
+     scrollbar-color: var(--secondary) var(--primary);
+ }
