@@ -8,6 +8,7 @@ export default defineSchema({
     html: v.string(),
     css: v.string(),
     js: v.string(),
+    tailwind: v.optional(v.boolean()),
     forkedFrom: v.optional(v.string()),
   }).index("by_slug", ["slug"]),
 });
