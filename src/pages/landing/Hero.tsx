@@ -8,6 +8,7 @@ import FlowField from "../../fx/FlowField";
 import KineticText from "../../fx/KineticText";
 import Magnetic from "../../fx/Magnetic";
 import Marquee from "../../fx/Marquee";
+import HeroStage from "./HeroStage";
 
 const words = ["HTML", "CSS", "JavaScript", "Emmet", "Prettier", "Live console", "Short links", "Forks", "Templates"];
 
@@ -29,10 +30,10 @@ export default function Hero({ ready }: { ready: boolean }) {
       <FlowField />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_55%,rgb(11_11_26_/_0.75),transparent_65%)]" aria-hidden />
       <SiteNav onDark />
-      <div className="relative mx-auto flex w-full max-w-[1480px] flex-1 flex-col justify-center px-5 pb-10 pt-4 md:px-10">
-        <KineticText ready={ready} lines={["Write code.", "Watch it", "come alive."]} className="text-[clamp(3.4rem,12.5vw,11.5rem)]" />
-        <div className="mt-10 flex flex-wrap items-end justify-between gap-8">
-          <div className="max-w-[40ch]">
+      <div className="relative mx-auto grid w-full max-w-[1480px] flex-1 items-center gap-10 px-5 pb-10 pt-4 md:px-10 lg:grid-cols-12">
+        <div className="lg:col-span-7">
+          <KineticText ready={ready} lines={["Write code.", "Watch it", "come alive."]} className="text-[clamp(3.2rem,8.6vw,8.6rem)]" />
+          <div className="mt-10 max-w-[40ch]">
             <p className="h-fade text-xl leading-snug text-paper/80">
               A free playground for HTML, CSS and JavaScript. No account. Every Share is a link anyone can open and fork.
             </p>
@@ -45,11 +46,8 @@ export default function Hero({ ready }: { ready: boolean }) {
               <Link to="/gallery" className="text-lg font-semibold text-paper underline decoration-paper/30 hover:decoration-paper">Browse templates</Link>
             </div>
           </div>
-          <div className="h-fade hidden items-center gap-3 text-sm font-semibold text-fade md:flex" aria-hidden>
-            <span className="relative block h-12 w-px bg-fade/40"><span className="scroll-tick absolute left-[-1.5px] top-0 block size-1 rounded-full bg-paper" /></span>
-            Scroll
-          </div>
         </div>
+        <div className="lg:col-span-5"><HeroStage ready={ready} /></div>
       </div>
       <Marquee words={words} className="relative border-t border-paper/10 py-4 text-sm font-semibold uppercase tracking-widest text-fade" />
     </section>

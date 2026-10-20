@@ -7,7 +7,7 @@ export default function SiteNav({ onDark = false }: { onDark?: boolean }) {
     onDark ? "text-paper/80 hover:text-paper" : "text-muted hover:text-ink"
   }`;
   return (
-    <header className="relative z-10 mx-auto flex max-w-[1320px] items-center justify-between px-5 py-5 md:px-8">
+    <header className="relative z-10 mx-auto flex w-full max-w-[1480px] items-center justify-between px-5 py-5 md:px-10">
       <Logo onDark={onDark} />
       <nav className="flex items-center gap-1" aria-label="Main">
         <Link to="/gallery" className={link}>Templates</Link>
