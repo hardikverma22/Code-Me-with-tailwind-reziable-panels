@@ -39,7 +39,7 @@ export default function SettingsPanel() {
   const seg = (on: boolean) => `flex-1 rounded-md px-3 py-1.5 text-sm font-bold transition-colors ${on ? "bg-paper text-ink" : "text-fade hover:text-paper"}`;
 
   return (
-    <div ref={box} className="relative">
+    <div ref={box} className="relative z-40">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
