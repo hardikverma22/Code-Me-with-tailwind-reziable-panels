@@ -5,8 +5,10 @@ import type { Language } from "../lib/format";
 import { exampleSources } from "../lib/example";
 
 type ProjectState = Sources & {
+  /** Slug of the shared project this work was opened or shared from. */
+  parentSlug: string | null;
   setCode: (language: Language, code: string) => void;
-  load: (sources: Sources) => void;
+  load: (sources: Sources, parentSlug?: string | null) => void;
   reset: () => void;
   loadExample: () => void;
 };
@@ -17,14 +19,15 @@ export const useProject = create<ProjectState>()(
   persist(
     (set) => ({
       ...exampleSources,
+      parentSlug: null,
       setCode: (language, code) => set({ [language]: code }),
-      load: (sources) => set(sources),
-      reset: () => set(empty),
-      loadExample: () => set(exampleSources),
+      load: (sources, parentSlug = null) => set({ ...sources, parentSlug }),
+      reset: () => set({ ...empty, parentSlug: null }),
+      loadExample: () => set({ ...exampleSources, parentSlug: null }),
     }),
     {
       name: "codeme-project",
-      partialize: ({ html, css, js }) => ({ html, css, js }),
+      partialize: ({ html, css, js, parentSlug }) => ({ html, css, js, parentSlug }),
     }
   )
 );

@@ -19,3 +19,12 @@ describe("buildSrcDoc", () => {
     expect(doc).not.toContain("'</script>'");
   });
 });
+
+import { slugFromPath } from "./route";
+describe("slugFromPath", () => {
+  it("reads project slugs", () => {
+    expect(slugFromPath("/p/abc23xyz")).toBe("abc23xyz");
+    expect(slugFromPath("/")).toBeNull();
+    expect(slugFromPath("/p/a/b")).toBeNull();
+  });
+});
