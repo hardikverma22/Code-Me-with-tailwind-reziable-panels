@@ -82,3 +82,14 @@ a { text-underline-offset: 0.25em; text-decoration-thickness: 2px; }
   html { scroll-behavior: auto; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Marquee */
+@keyframes marquee { to { transform: translateX(-100%); } }
+.marquee-row { animation: marquee 28s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .marquee-row { animation: none; } }
+
+/* Custom cursor hides the native one only where we draw our own */
+html.has-cursor body:not(.editor-bg) { cursor: none; }
+html.has-cursor body:not(.editor-bg) a, html.has-cursor body:not(.editor-bg) button { cursor: none; }
+
+.stroke-text { -webkit-text-stroke: 2px currentColor; color: transparent; }
