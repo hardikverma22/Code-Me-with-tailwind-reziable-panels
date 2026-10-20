@@ -2,7 +2,7 @@
 
 A fast, free playground for HTML, CSS and JavaScript, with optional Tailwind. Write code, see it run, share a short link anyone can open and fork. No account.
 
-**Live:** https://code-me-with-tailwind-reziable-pane.vercel.app
+**Live:** https://codeme-play.vercel.app
 
 ## What it does
 - Live preview in a sandboxed iframe, with a console that maps errors to your own JavaScript line
