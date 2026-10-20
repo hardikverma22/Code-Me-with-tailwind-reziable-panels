@@ -1,40 +1,49 @@
 import { useEffect } from "react";
-import Header from "./components/Header";
-import Workspace from "./components/Workspace";
-import { decodeShare } from "./lib/share";
-import { slugFromPath } from "./lib/route";
-import { convex } from "./lib/convex";
-import { api } from "../convex/_generated/api";
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate, useSearchParams } from "react-router";
+import Landing from "./pages/Landing";
+import EditorPage from "./pages/EditorPage";
+import Gallery from "./pages/Gallery";
+import Mine from "./pages/Mine";
+import { templateById } from "./lib/templates";
 import { useProject } from "./store/project";
 
-// A shared link replaces whatever is saved locally.
-async function loadFromUrl() {
-  const { load } = useProject.getState();
-  const slug = slugFromPath(location.pathname);
-  if (slug && convex) {
-    try {
-      const project = await convex.query(api.projects.getBySlug, { slug });
-      if (project) return load({ html: project.html, css: project.css, js: project.js }, project.slug);
-    } catch {
-      /* offline or backend down: keep local work */
+/** Opens /new?template=<id> with that template loaded, then cleans the URL. */
+function NewProject() {
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const id = params.get("template");
+
+  useEffect(() => {
+    const t = id ? templateById(id) : undefined;
+    if (t) {
+      useProject.getState().load({ html: t.html, css: t.css, js: t.js }, null);
+      navigate("/new", { replace: true });
     }
-    return;
-  }
-  const shared = decodeShare(location.hash);
-  if (shared) load(shared);
+  }, [id, navigate]);
+
+  return <EditorPage />;
+}
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 }
 
 export default function App() {
-  useEffect(() => {
-    void loadFromUrl();
-  }, []);
-
   return (
-    <div className="flex h-full flex-col">
-      <Header />
-      <main className="min-h-0 flex-1 px-2 pb-2">
-        <Workspace />
-      </main>
-    </div>
+    <BrowserRouter>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/new" element={<NewProject />} />
+        <Route path="/p/:slug" element={<EditorPage />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/mine" element={<Mine />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
