@@ -27,6 +27,7 @@ export default function Gallery() {
                     ))}
                   </span>
                 </div>
+                {t.badge && <p className="mt-2 inline-block rounded-full bg-ink px-3 py-1 text-xs font-bold text-white">{t.badge}</p>}
                 <p className="mt-1 max-w-[44ch] text-muted">{t.blurb}</p>
               </Link>
             </li>

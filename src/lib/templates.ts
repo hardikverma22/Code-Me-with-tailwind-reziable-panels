@@ -1,9 +1,22 @@
 import type { Sources } from "./buildSrcDoc";
 import { exampleSources } from "./example";
+import { dashboardCss, dashboardHtml, dashboardJs, dashboardResources } from "./dashboardTemplate";
 
-export type Template = Sources & { id: string; title: string; blurb: string; tags: ("html" | "css" | "js")[] };
+export type Template = Sources & { id: string; title: string; blurb: string; tags: ("html" | "css" | "js")[]; badge?: string };
 
 export const templates: Template[] = [
+  {
+    id: "mission-control",
+    title: "Mission Control dashboard",
+    blurb: "An analytics dashboard with live charts, animated numbers and a live feed. Several libraries, one page.",
+    tags: ["html", "css", "js"],
+    badge: "Tailwind + Chart.js + GSAP + Lucide",
+    html: dashboardHtml,
+    css: dashboardCss,
+    js: dashboardJs,
+    tailwind: true,
+    resources: dashboardResources,
+  },
   {
     id: "neon-sphere",
     title: "Neon sphere",

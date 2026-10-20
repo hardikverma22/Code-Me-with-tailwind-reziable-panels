@@ -16,7 +16,7 @@ function NewProject() {
   useEffect(() => {
     const t = id ? templateById(id) : undefined;
     if (t) {
-      useProject.getState().load({ html: t.html, css: t.css, js: t.js }, null);
+      useProject.getState().load({ html: t.html, css: t.css, js: t.js, tailwind: t.tailwind, resources: t.resources }, null);
       navigate("/new", { replace: true });
     }
   }, [id, navigate]);
