@@ -1,3 +1,65 @@
 {
-  "rewrites": [{ "source": "/((?!assets/|favicon.svg).*)", "destination": "/index.html" }]
+  "redirects": [
+    {
+      "source": "/:path(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "code-me-with-tailwind-reziable-pane.vercel.app"
+        }
+      ],
+      "destination": "https://codeme-play.vercel.app/:path",
+      "permanent": false
+    },
+    {
+      "source": "/:path(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "code-me-with-tailwind-reziable-panels.vercel.app"
+        }
+      ],
+      "destination": "https://codeme-play.vercel.app/:path",
+      "permanent": false
+    },
+    {
+      "source": "/:path(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "code-me-with-tailwind-reziable-panels-hardiks-projects-fd3e0599.vercel.app"
+        }
+      ],
+      "destination": "https://codeme-play.vercel.app/:path",
+      "permanent": false
+    },
+    {
+      "source": "/:path(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "codeme-studio.vercel.app"
+        }
+      ],
+      "destination": "https://codeme-play.vercel.app/:path",
+      "permanent": false
+    },
+    {
+      "source": "/:path(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "codemeplay.vercel.app"
+        }
+      ],
+      "destination": "https://codeme-play.vercel.app/:path",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!assets/|favicon.svg).*)",
+      "destination": "/index.html"
+    }
+  ]
 }

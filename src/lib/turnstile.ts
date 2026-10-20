@@ -23,10 +23,12 @@ export async function getTurnstileToken(): Promise<string | undefined> {
     const box = document.createElement("div");
     box.style.cssText = "position:fixed;bottom:16px;right:16px;z-index:200";
     document.body.append(box);
+    const timer = setTimeout(() => { box.remove(); reject(new Error("timeout")); }, 25_000);
     const id = window.turnstile!.render(box, {
       sitekey: siteKey,
-      callback: (t: string) => { window.turnstile?.remove(id); box.remove(); resolve(t); },
-      "error-callback": () => { box.remove(); reject(new Error("challenge failed")); },
+      callback: (t: string) => { clearTimeout(timer); window.turnstile?.remove(id); box.remove(); resolve(t); },
+      // The code says why: 110200 means this site's address isn't allowed on the widget.
+      "error-callback": (code: string) => { clearTimeout(timer); box.remove(); reject(new Error(String(code))); },
     });
   });
 }

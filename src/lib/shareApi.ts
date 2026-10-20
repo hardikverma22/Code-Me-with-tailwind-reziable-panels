@@ -14,8 +14,9 @@ export async function shareProject(sources: Sources, forkedFrom: string | null):
   let turnstileToken: string | undefined;
   try {
     turnstileToken = await getTurnstileToken();
-  } catch {
-    throw new ShareError("Couldn't verify you're human. Disable blockers for this site and try again.");
+  } catch (e) {
+    const code = e instanceof Error ? e.message : "unknown";
+    throw new ShareError(`Couldn't verify you're human (error ${code}). Turn off content blockers for this site, or open ${location.hostname === "localhost" ? "the live site" : "codeme-play.vercel.app"}, and try again.`);
   }
   let res: Response;
   try {
