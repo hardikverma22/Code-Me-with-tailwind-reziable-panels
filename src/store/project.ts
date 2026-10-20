@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Sources } from "../lib/buildSrcDoc";
+import type { Resource, Sources } from "../lib/buildSrcDoc";
 import type { Language } from "../lib/format";
 import { exampleSources } from "../lib/example";
 
@@ -10,13 +10,14 @@ type ProjectState = Sources & {
   /** The project that `parentSlug` itself was forked from, for the lineage chip. */
   forkedFrom: string | null;
   setTailwind: (on: boolean) => void;
+  setResources: (resources: Resource[]) => void;
   setCode: (language: Language, code: string) => void;
   load: (sources: Sources, parentSlug?: string | null, forkedFrom?: string | null) => void;
   reset: () => void;
   loadExample: () => void;
 };
 
-const empty: Sources = { html: "", css: "", js: "", tailwind: false };
+const empty: Sources = { html: "", css: "", js: "", tailwind: false, resources: [] };
 
 export const useProject = create<ProjectState>()(
   persist(
@@ -26,14 +27,16 @@ export const useProject = create<ProjectState>()(
       forkedFrom: null,
       tailwind: false,
       setTailwind: (on) => set({ tailwind: on }),
+      resources: [],
+      setResources: (resources) => set({ resources }),
       setCode: (language, code) => set({ [language]: code }),
-      load: (sources, parentSlug = null, forkedFrom = null) => set({ tailwind: false, ...sources, parentSlug, forkedFrom }),
+      load: (sources, parentSlug = null, forkedFrom = null) => set({ tailwind: false, resources: [], ...sources, parentSlug, forkedFrom }),
       reset: () => set({ ...empty, parentSlug: null, forkedFrom: null }),
-      loadExample: () => set({ ...exampleSources, tailwind: false, parentSlug: null, forkedFrom: null }),
+      loadExample: () => set({ ...exampleSources, tailwind: false, resources: [], parentSlug: null, forkedFrom: null }),
     }),
     {
       name: "codeme-project",
-      partialize: ({ html, css, js, tailwind, parentSlug, forkedFrom }) => ({ html, css, js, tailwind, parentSlug, forkedFrom }),
+      partialize: ({ html, css, js, tailwind, resources, parentSlug, forkedFrom }) => ({ html, css, js, tailwind, resources, parentSlug, forkedFrom }),
     }
   )
 );

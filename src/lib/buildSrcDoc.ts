@@ -1,4 +1,7 @@
-export type Sources = { html: string; css: string; js: string; tailwind?: boolean };
+export type Resource = { kind: "script" | "style"; url: string };
+export type Sources = { html: string; css: string; js: string; tailwind?: boolean; resources?: Resource[] };
+
+const attr = (u: string) => u.replace(/"/g, "%22").replace(/</g, "%3C");
 
 /** Posted by the preview iframe to the parent window. */
 export type PreviewMessage = {
@@ -44,7 +47,8 @@ const bridge = `(${function () {
 const escapeClose = (code: string, tag: "script" | "style") =>
   code.replace(new RegExp(`</${tag}`, "gi"), `<\\/${tag}`);
 
-export function buildSrcDoc({ html, css, js, tailwind }: Sources): string {
+export function buildSrcDoc({ html, css, js, tailwind, resources = [] }: Sources): string {
+  const ext = resources.map((r) => (r.kind === "style" ? `<link rel="stylesheet" href="${attr(r.url)}">` : `<script src="${attr(r.url)}"></script>`)).join("\n");
   const tw = tailwind ? `<script src="${TAILWIND_SRC}"></script>\n` : "";
   const style = tailwind
     ? `<style type="text/tailwindcss">${escapeClose(css, "style")}</style>`
@@ -56,7 +60,7 @@ export function buildSrcDoc({ html, css, js, tailwind }: Sources): string {
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script>%OFFSET%</script>
 <script>${bridge}</script>
-${tw}${style}
+${tw}${ext ? ext + "\n" : ""}${style}
 </head>
 <body>
 ${html}

@@ -11,9 +11,9 @@ export default function Close() {
       <div className="relative mx-auto flex max-w-[1480px] flex-col items-start gap-8 px-5 py-24 md:px-10 lg:py-36">
         <p className="max-w-[24ch] text-2xl font-semibold text-paper/80">Your idea is one tab away. No account, no setup.</p>
         <Magnetic strength={0.15}>
-          <button onClick={() => navigate("/new")} className="display group flex flex-wrap items-center gap-x-[0.25em] text-left text-[clamp(3.6rem,13vw,12rem)]" data-cursor aria-label="Start coding">
+          <button onClick={() => navigate("/new")} className="display group flex flex-wrap items-center gap-x-[0.25em] text-left text-[clamp(3.6rem,13vw,12rem)]" data-cursor aria-label="Start building">
             <span className="stroke-text transition-all duration-500 group-hover:text-paper">Start</span>
-            <span className="text-paper transition-all duration-500 group-hover:stroke-text group-hover:text-transparent">coding</span>
+            <span className="text-paper transition-all duration-500 group-hover:stroke-text group-hover:text-transparent">building</span>
             <ArrowRight className="size-[0.6em] transition-transform duration-500 group-hover:translate-x-4" aria-hidden />
           </button>
         </Magnetic>

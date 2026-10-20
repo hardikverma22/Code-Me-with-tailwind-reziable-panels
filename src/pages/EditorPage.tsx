@@ -21,7 +21,7 @@ export default function EditorPage() {
     if (slug && convex) {
       convex
         .query(api.projects.getBySlug, { slug })
-        .then((p) => p && load({ html: p.html, css: p.css, js: p.js, tailwind: p.tailwind }, p.slug, p.forkedFrom))
+        .then((p) => p && load({ html: p.html, css: p.css, js: p.js, tailwind: p.tailwind, resources: p.resources }, p.slug, p.forkedFrom))
         .catch(() => { /* offline or backend down: keep local work */ });
       return;
     }

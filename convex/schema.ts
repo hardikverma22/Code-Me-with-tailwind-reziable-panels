@@ -9,6 +9,11 @@ export default defineSchema({
     css: v.string(),
     js: v.string(),
     tailwind: v.optional(v.boolean()),
+    resources: v.optional(v.array(v.object({ kind: v.union(v.literal("script"), v.literal("style")), url: v.string() }))),
     forkedFrom: v.optional(v.string()),
-  }).index("by_slug", ["slug"]),
+    // SHA-256 of the content, so sharing identical code twice returns the same link.
+    hash: v.optional(v.string()),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_hash", ["hash"]),
 });

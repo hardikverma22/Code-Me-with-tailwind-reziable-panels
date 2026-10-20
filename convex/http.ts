@@ -53,15 +53,35 @@ http.route({
     if (b.tailwind !== undefined && typeof b.tailwind !== "boolean") return json(400, { error: "bad_request" }, origin);
     if (b.forkedFrom !== undefined && !isStr(b.forkedFrom)) return json(400, { error: "bad_request" }, origin);
 
+    const resources = b.resources === undefined ? [] : b.resources;
+    const okResources =
+      Array.isArray(resources) && resources.length <= 5 &&
+      resources.every((r) => r && (r.kind === "script" || r.kind === "style") && isStr(r.url) && r.url.length <= 300 && /^https:\/\/[^\s]+$/.test(r.url));
+    if (!okResources) return json(400, { error: "bad_request" }, origin);
+
     const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+    // Optional bot challenge: enforced only when TURNSTILE_SECRET is set in the Convex dashboard.
+    const secret = process.env.TURNSTILE_SECRET;
+    if (secret) {
+      const token = isStr(b.turnstileToken) ? b.turnstileToken : "";
+      const verify = token
+        ? await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+            method: "POST",
+            body: new URLSearchParams({ secret, response: token, ...(ip !== "unknown" ? { remoteip: ip } : {}) }),
+          }).then((r) => r.json() as Promise<{ success?: boolean }>).catch(() => ({ success: false }))
+        : { success: false };
+      if (!verify.success) return json(403, { error: "challenge_failed" }, origin);
+    }
+
     const result = await ctx.runMutation(internal.projects.createLimited, {
       ip,
       html: b.html, css: b.css, js: b.js,
       ...(b.tailwind !== undefined ? { tailwind: b.tailwind } : {}),
+      ...(resources.length ? { resources: resources as { kind: "script" | "style"; url: string }[] } : {}),
       ...(b.forkedFrom !== undefined ? { forkedFrom: b.forkedFrom } : {}),
     });
 
-    if (result.ok) return json(200, { slug: result.slug }, origin);
+    if (result.ok) return json(200, { slug: result.slug, existing: result.existing }, origin);
     const status = result.reason === "too_large" ? 413 : result.reason === "bad_request" ? 400 : 429;
     return json(status, { error: result.reason, retryAfterSeconds: result.retryAfterSeconds }, origin, result.retryAfterSeconds ? { "Retry-After": String(result.retryAfterSeconds) } : {});
   }),

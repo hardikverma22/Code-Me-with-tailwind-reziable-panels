@@ -18,7 +18,7 @@ export default function SiteNav({ onDark = false }: { onDark?: boolean }) {
             onDark ? "bg-paper text-ink" : "bg-ink text-white"
           }`}
         >
-          Start coding
+          Open editor
         </button>
       </nav>
     </header>

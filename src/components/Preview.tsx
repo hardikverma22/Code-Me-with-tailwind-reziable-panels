@@ -9,13 +9,14 @@ export default function Preview() {
   const css = useProject((s) => s.css);
   const js = useProject((s) => s.js);
   const tailwind = useProject((s) => s.tailwind);
+  const resources = useProject((s) => s.resources);
   const { push, clear } = useConsole();
   const onMessage = useCallback((m: { kind: Parameters<typeof push>[0]; args: string[] }) => push(m.kind, m.args), [push]);
   const onRun = useCallback(() => clear(), [clear]);
 
   return (
     <ProofSheet className="h-full w-full">
-      <PreviewFrame sources={{ html, css, js, tailwind }} onMessage={onMessage} onRun={onRun} className="h-full w-full bg-white" />
+      <PreviewFrame sources={{ html, css, js, tailwind, resources }} onMessage={onMessage} onRun={onRun} className="h-full w-full bg-white" />
     </ProofSheet>
   );
 }
