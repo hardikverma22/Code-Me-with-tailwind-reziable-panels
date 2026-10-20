@@ -7,33 +7,28 @@ import type { Language } from "../lib/format";
 import { useMediaQuery } from "../lib/useMediaQuery";
 
 const languages: Language[] = ["html", "css", "js"];
-const tabLabel: Record<Language, string> = { html: "HTML", css: "CSS", js: "JS" };
 
 function Desktop() {
   return (
     <Group orientation="vertical" className="h-full">
-      <Panel defaultSize="45%" minSize="15%">
+      <Panel defaultSize="46%" minSize="15%">
         <Group orientation="horizontal">
           {languages.map((l, i) => (
-            <PanelWithSeparator key={l} first={i === 0}>
+            <Fragment2 key={l} first={i === 0}>
               <EditorPane language={l} />
-            </PanelWithSeparator>
+            </Fragment2>
           ))}
         </Group>
       </Panel>
       <Separator />
-      <Panel defaultSize="55%" minSize="20%">
+      <Panel defaultSize="54%" minSize="20%">
         <Group orientation="horizontal">
           <Panel defaultSize="70%" minSize="30%">
-            <div className="h-full overflow-hidden rounded-lg bg-white">
-              <Preview />
-            </div>
+            <div className="h-full pb-1"><Preview /></div>
           </Panel>
           <Separator />
           <Panel defaultSize="30%" minSize="15%">
-            <div className="h-full overflow-hidden rounded-lg">
-              <ConsolePanel />
-            </div>
+            <ConsolePanel />
           </Panel>
         </Group>
       </Panel>
@@ -41,7 +36,7 @@ function Desktop() {
   );
 }
 
-function PanelWithSeparator({ first, children }: { first: boolean; children: React.ReactNode }) {
+function Fragment2({ first, children }: { first: boolean; children: React.ReactNode }) {
   return (
     <>
       {!first && <Separator />}
@@ -53,28 +48,22 @@ function PanelWithSeparator({ first, children }: { first: boolean; children: Rea
 function Mobile() {
   const [tab, setTab] = useState<Language>("html");
   return (
-    <div className="flex h-full flex-col gap-2">
-      <div role="tablist" className="flex gap-1">
+    <div className="flex h-full flex-col">
+      <div role="tablist" className="flex">
         {languages.map((l) => (
           <button
             key={l}
             role="tab"
             aria-selected={tab === l}
             onClick={() => setTab(l)}
-            className={`rounded-md px-4 py-2 text-sm font-semibold ${
-              tab === l ? "bg-raised text-ink" : "text-muted"
-            }`}
+            className={`flex-1 rounded-t-lg py-2.5 text-sm font-bold ${tab === l ? "bg-bed text-paper" : "text-fade"}`}
           >
-            {tabLabel[l]}
+            {l === "js" ? "JS" : l.toUpperCase()}
           </button>
         ))}
       </div>
-      <div className="h-1/2 overflow-hidden rounded-lg">
-        <EditorPane language={tab} />
-      </div>
-      <div className="h-1/2 overflow-hidden rounded-lg bg-white">
-        <Preview />
-      </div>
+      <div className="h-1/2 min-h-0"><EditorPane language={tab} /></div>
+      <div className="h-1/2 min-h-0 pt-2"><Preview /></div>
     </div>
   );
 }

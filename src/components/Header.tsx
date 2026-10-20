@@ -1,48 +1,71 @@
 import { useState } from "react";
-import { Check, FilePlus2, Link2, Sparkles } from "lucide-react";
+import { Link } from "react-router";
+import { Check, FilePlus2, FolderOpen, LayoutGrid, Link2 } from "lucide-react";
 import { useProject } from "../store/project";
+import { useMine, titleFromHtml } from "../store/mine";
 import { encodeShare } from "../lib/share";
+import { convex } from "../lib/convex";
+import { api } from "../../convex/_generated/api";
+import Logo from "./Logo";
+
+type ShareState = "idle" | "saving" | "copied" | "error";
 
 export default function Header() {
-  const { reset, loadExample } = useProject();
-  const [copied, setCopied] = useState(false);
+  const { reset } = useProject();
+  const addMine = useMine((s) => s.add);
+  const [state, setState] = useState<ShareState>("idle");
 
   const share = async () => {
-    const { html, css, js } = useProject.getState();
-    history.replaceState(null, "", encodeShare({ html, css, js }));
+    const { html, css, js, parentSlug } = useProject.getState();
+    setState("saving");
+    try {
+      if (convex) {
+        const slug = await convex.mutation(api.projects.create, {
+          html, css, js, ...(parentSlug ? { forkedFrom: parentSlug } : {}),
+        });
+        useProject.setState({ parentSlug: slug });
+        addMine({ slug, html, css, js, title: titleFromHtml(html), createdAt: Date.now() });
+        history.replaceState(null, "", `/p/${slug}`);
+      } else {
+        history.replaceState(null, "", encodeShare({ html, css, js }));
+      }
+    } catch {
+      setState("error");
+      setTimeout(() => setState("idle"), 3000);
+      return;
+    }
     try {
       await navigator.clipboard.writeText(location.href);
     } catch {
       /* the link is still in the address bar */
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setState("copied");
+    setTimeout(() => setState("idle"), 2000);
   };
 
-  const btn =
-    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-raised hover:text-ink";
+  const link =
+    "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-fade no-underline transition-colors hover:bg-bed-raised hover:text-paper";
+  const label = { idle: "Share", saving: "Saving…", copied: "Link copied", error: "Couldn't share. Try again." }[state];
 
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between px-4">
-      <h1 className="text-lg font-bold tracking-tight">
-        Code<span className="text-accent">Me</span>
-      </h1>
-      <nav className="flex items-center gap-1" aria-label="Project actions">
-        <button className={btn} onClick={reset}>
-          <FilePlus2 size={16} aria-hidden /> New
+    <header className="flex h-14 shrink-0 items-center justify-between gap-2 px-4">
+      <Logo onDark />
+      <nav className="flex items-center" aria-label="Editor">
+        <button className={link} onClick={() => { reset(); history.replaceState(null, "", "/new"); }}>
+          <FilePlus2 size={16} aria-hidden /> <span className="hidden sm:inline">New</span>
         </button>
-        <button className={btn} onClick={loadExample}>
-          <Sparkles size={16} aria-hidden /> Example
-        </button>
+        <Link className={link} to="/gallery"><LayoutGrid size={16} aria-hidden /> <span className="hidden sm:inline">Templates</span></Link>
+        <Link className={link} to="/mine"><FolderOpen size={16} aria-hidden /> <span className="hidden sm:inline">My work</span></Link>
         <button
           onClick={share}
-          className="flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-bench transition-opacity hover:opacity-90"
+          disabled={state === "saving"}
+          className="ml-2 flex items-center gap-1.5 rounded-full bg-paper px-4 py-2 text-sm font-bold text-ink transition hover:shadow-[0_0_0_4px_rgb(123_97_255_/_0.45)] disabled:opacity-60"
         >
-          {copied ? <Check size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
-          {copied ? "Link copied" : "Share"}
+          {state === "copied" ? <Check size={16} aria-hidden /> : <Link2 size={16} aria-hidden />}
+          {label}
         </button>
       </nav>
-      <span className="sr-only" role="status">{copied ? "Link copied to clipboard" : ""}</span>
+      <span className="sr-only" role="status">{state === "copied" ? "Link copied to clipboard" : ""}</span>
     </header>
   );
 }

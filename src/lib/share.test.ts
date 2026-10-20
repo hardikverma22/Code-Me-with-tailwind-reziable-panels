@@ -19,3 +19,4 @@ describe("buildSrcDoc", () => {
     expect(doc).not.toContain("'</script>'");
   });
 });
+
