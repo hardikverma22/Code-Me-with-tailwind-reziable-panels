@@ -12,6 +12,7 @@ Write code, watch it run, and share a short link anyone can open and fork. No ac
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8?logo=tailwindcss&logoColor=white)
 ![Convex](https://img.shields.io/badge/Backend-Convex-ee342f)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 <img src="docs/screenshots/landing.jpg" alt="CodeMe landing page: a headline, a live stage of code being typed, and the result building beside it" width="860" />
 
@@ -169,6 +170,10 @@ The abuse limits were also checked against a deployed endpoint: bad input, overs
 - Tailwind and external libraries load from a CDN, so they need an internet connection.
 - No npm packages or bundler: the preview is a plain browser document by design.
 - "My work" is stored on the device until accounts exist.
+
+## License
+
+[MIT](LICENSE) © 2026 hardikverma22
 
 ## Acknowledgements
 
