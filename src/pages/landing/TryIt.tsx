@@ -8,7 +8,7 @@ import Magnetic from "../../fx/Magnetic";
 import { inkFor } from "../../components/EditorPane";
 import { useProject } from "../../store/project";
 import { formatCode, type Language } from "../../lib/format";
-import { templates } from "../../lib/templates";
+import { templateById } from "../../lib/templates";
 import type { PreviewMessage } from "../../lib/buildSrcDoc";
 
 const starter = {
@@ -33,7 +33,7 @@ const devices = [
   { id: "tablet", label: "Tablet", w: 768, Icon: Tablet },
   { id: "full", label: "Desktop", w: 0, Icon: Monitor },
 ] as const;
-const picks = [templates[1], templates[2], templates[4], templates[5], templates[6]];
+const picks = ["loader-dots", "spin-cube", "typewriter", "theme-switch", "todo"].map((id) => templateById(id)!).filter(Boolean);
 
 type Log = { id: number; kind: string; text: string };
 let logId = 0;
@@ -54,7 +54,7 @@ export default function TryIt() {
     gsap.to(frame.current, { width: d.w || full, duration: 0.7, ease: "expo.out" });
   };
 
-  const loadTemplate = (t: (typeof templates)[number]) => {
+  const loadTemplate = (t: (typeof picks)[number]) => {
     gsap.timeline()
       .to(stage.current, { opacity: 0, y: 8, duration: 0.15 })
       .call(() => setCode({ html: t.html, css: t.css, js: t.js }))
