@@ -23,9 +23,8 @@ export default function Rail() {
           x: () => -dist(), ease: "none",
           scrollTrigger: { trigger: root.current, start: "top top", end: () => `+=${dist()}`, pin: true, scrub: 0.5, invalidateOnRefresh: true, anticipatePin: 1 },
         });
-        gsap.utils.toArray<HTMLElement>(".rail-card").forEach((card, i) => {
+        gsap.utils.toArray<HTMLElement>(".rail-card").forEach((card) => {
           gsap.fromTo(card.querySelector(".rail-thumb"), { scale: 1.12 }, { scale: 1, ease: "none", scrollTrigger: { trigger: card, containerAnimation: undefined, start: "left right", end: "left 30%", scrub: true, horizontal: false } });
-          gsap.set(card, { y: i % 2 ? 36 : 0 });
         });
       });
       return () => mm.revert();
