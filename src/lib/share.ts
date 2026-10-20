@@ -13,7 +13,7 @@ export function decodeShare(hash: string): Sources | null {
     const raw = decompressFromEncodedURIComponent(hash.slice(KEY.length));
     const data = raw ? JSON.parse(raw) : null;
     if (data && ["html", "css", "js"].every((k) => typeof data[k] === "string")) {
-      return { html: data.html, css: data.css, js: data.js };
+      return { html: data.html, css: data.css, js: data.js, tailwind: data.tailwind === true };
     }
   } catch {
     /* fall through */

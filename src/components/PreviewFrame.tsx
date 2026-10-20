@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { buildSrcDoc, type PreviewMessage, type Sources } from "../lib/buildSrcDoc";
 
+/**
+ * The preview runs untrusted code. `allow-same-origin` must never be combined with `allow-scripts`:
+ * the frame could then remove its own sandbox. A test enforces this.
+ */
+export const SANDBOX = "allow-scripts allow-modals allow-forms";
+
 type Props = {
   sources: Sources;
   debounceMs?: number;
@@ -41,7 +47,7 @@ export default function PreviewFrame({
     <iframe
       title={title}
       srcDoc={srcDoc}
-      sandbox="allow-scripts allow-modals allow-forms"
+      sandbox={SANDBOX}
       className={className}
       style={interactive ? undefined : { pointerEvents: "none" }}
     />

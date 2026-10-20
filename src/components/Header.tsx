@@ -1,37 +1,41 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Check, FilePlus2, FolderOpen, LayoutGrid, Link2 } from "lucide-react";
+import { Check, Download, FilePlus2, FolderOpen, GitFork, LayoutGrid, Link2 } from "lucide-react";
 import { useProject } from "../store/project";
 import { useMine, titleFromHtml } from "../store/mine";
 import { encodeShare } from "../lib/share";
-import { convex } from "../lib/convex";
-import { api } from "../../convex/_generated/api";
+import { canShare, ShareError, shareProject } from "../lib/shareApi";
+import { exportProject } from "../lib/exportProject";
 import Logo from "./Logo";
+import SettingsPanel from "./SettingsPanel";
 
 type ShareState = "idle" | "saving" | "copied" | "error";
 
 export default function Header() {
-  const { reset } = useProject();
+  const { reset, parentSlug, forkedFrom } = useProject();
   const addMine = useMine((s) => s.add);
   const [state, setState] = useState<ShareState>("idle");
+  const [message, setMessage] = useState("");
+  const [same, setSame] = useState(false);
 
   const share = async () => {
-    const { html, css, js, parentSlug } = useProject.getState();
+    const { html, css, js, tailwind, resources, parentSlug } = useProject.getState();
     setState("saving");
     try {
-      if (convex) {
-        const slug = await convex.mutation(api.projects.create, {
-          html, css, js, ...(parentSlug ? { forkedFrom: parentSlug } : {}),
-        });
-        useProject.setState({ parentSlug: slug });
-        addMine({ slug, html, css, js, title: titleFromHtml(html), createdAt: Date.now() });
+      if (canShare) {
+        const { slug, existing } = await shareProject({ html, css, js, tailwind, resources }, parentSlug);
+        if (!existing) useProject.setState({ parentSlug: slug, forkedFrom: parentSlug });
+        else useProject.setState({ parentSlug: slug });
+        setSame(existing);
+        addMine({ slug, html, css, js, tailwind, resources, title: titleFromHtml(html), createdAt: Date.now() });
         history.replaceState(null, "", `/p/${slug}`);
       } else {
-        history.replaceState(null, "", encodeShare({ html, css, js }));
+        history.replaceState(null, "", encodeShare({ html, css, js, tailwind, resources }));
       }
-    } catch {
+    } catch (e) {
+      setMessage(e instanceof ShareError ? e.message : "Couldn't share this project. Try again.");
       setState("error");
-      setTimeout(() => setState("idle"), 3000);
+      setTimeout(() => setState("idle"), 5000);
       return;
     }
     try {
@@ -45,17 +49,33 @@ export default function Header() {
 
   const link =
     "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-semibold text-fade no-underline transition-colors hover:bg-bed-raised hover:text-paper";
-  const label = { idle: "Share", saving: "Saving…", copied: "Link copied", error: "Couldn't share. Try again." }[state];
+  const label = { idle: "Share", saving: "Saving…", copied: same ? "Same link copied" : "Link copied", error: "Couldn't share" }[state];
 
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-2 px-4">
-      <Logo onDark />
+      <div className="flex min-w-0 items-center gap-4">
+        <Logo onDark />
+        {parentSlug && (
+          <span className="hidden min-w-0 items-center gap-1.5 truncate rounded-full bg-bed px-3 py-1 font-mono text-xs text-fade md:flex" title="The link to this project">
+            <GitFork size={12} aria-hidden />
+            {forkedFrom ? (
+              <>forked from <Link className="text-css underline" to={`/p/${forkedFrom}`}>/p/{forkedFrom}</Link></>
+            ) : (
+              <>/p/{parentSlug}</>
+            )}
+          </span>
+        )}
+      </div>
       <nav className="flex items-center" aria-label="Editor">
+        <SettingsPanel />
         <button className={link} onClick={() => { reset(); history.replaceState(null, "", "/new"); }}>
           <FilePlus2 size={16} aria-hidden /> <span className="hidden sm:inline">New</span>
         </button>
-        <Link className={link} to="/gallery"><LayoutGrid size={16} aria-hidden /> <span className="hidden sm:inline">Templates</span></Link>
-        <Link className={link} to="/mine"><FolderOpen size={16} aria-hidden /> <span className="hidden sm:inline">My work</span></Link>
+        <button className={link} onClick={() => exportProject(useProject.getState())} title="Download as a small static project">
+          <Download size={16} aria-hidden /> <span className="hidden lg:inline">Export</span>
+        </button>
+        <Link className={link} to="/gallery"><LayoutGrid size={16} aria-hidden /> <span className="hidden lg:inline">Templates</span></Link>
+        <Link className={link} to="/mine"><FolderOpen size={16} aria-hidden /> <span className="hidden lg:inline">My work</span></Link>
         <button
           onClick={share}
           disabled={state === "saving"}
@@ -65,7 +85,10 @@ export default function Header() {
           {label}
         </button>
       </nav>
-      <span className="sr-only" role="status">{state === "copied" ? "Link copied to clipboard" : ""}</span>
+      <span className="sr-only" role="status">{state === "copied" ? "Link copied to clipboard" : state === "error" ? message : ""}</span>
+      {state === "error" && (
+        <p className="absolute right-4 top-14 z-20 max-w-xs rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-ink shadow-lg" role="alert">{message}</p>
+      )}
     </header>
   );
 }
