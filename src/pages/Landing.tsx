@@ -6,7 +6,7 @@ import Hero from "./landing/Hero";
 import Build from "./landing/Build";
 import Rail from "./landing/Rail";
 import Fork from "./landing/Fork";
-import TryIt from "./landing/TryIt";
+import Fix from "./landing/Fix";
 import Close from "./landing/Close";
 
 const seen = () => {
@@ -34,9 +34,9 @@ export default function Landing() {
       {!ready && <Preloader onDone={done} />}
       <Hero ready={ready} />
       <Build />
+      <Fix />
       <Rail />
       <Fork />
-      <TryIt />
       <Close />
     </div>
   );

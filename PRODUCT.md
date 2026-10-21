@@ -23,7 +23,7 @@ Used in a browser tab, often next to documentation, on desktop and phone. Sessio
 - Editor: HTML/CSS/JS CodeMirror 6 with Emmet and Prettier, sandboxed live preview, console, responsive mobile layout.
 - Backend: Convex (projects table of immutable snapshots, fork parent slug). No auth yet; "my projects" is device-local for now.
 - Stack: Vite, React 19, TypeScript, Tailwind CSS 4, Zustand. Motion with GSAP; components may come from 21st.dev. Hosted on Vercel.
-- No AI features (users won't pay for them).
+- AI is optional and costs nothing to run: only Chrome's built-in on-device model (no key, no account, no server), offered when a fix needs it, never required. Nothing is generated from a prompt, and every proposed change is checked in a sandbox and shown as a diff before it is applied. No paid AI tier.
 
 ## Brand Commitments
 Name is CodeMe. Tone: plain, confident, no hype. Free.

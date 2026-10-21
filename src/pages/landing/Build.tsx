@@ -4,36 +4,11 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { MousePointer2 } from "lucide-react";
 import { tokenize } from "../../lib/highlight";
+import { builtPlan } from "./example";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const code = {
-  html: `<div class="card">
-  <h3>Hello, CodeMe</h3>
-  <p id="out">Pressed 0 times</p>
-  <button id="go">Press me</button>
-</div>`,
-  css: `body { background: #1d1d3c; }
-.card {
-  background: white;
-  padding: 32px;
-  border-radius: 24px;
-  box-shadow: 0 30px 60px #0006;
-}
-h3 { font-size: 34px; color: #12122b; }
-p { color: #565878; }
-button {
-  background: #7b61ff;
-  color: white;
-  border-radius: 999px;
-  padding: 10px 20px;
-}`,
-  js: `let n = 0;
-go.onclick = () => {
-  out.textContent =
-    "Pressed " + ++n + " times";
-};`,
-} as const;
+const code = builtPlan;
 
 type Lang = keyof typeof code;
 const langs: Lang[] = ["html", "css", "js"];
@@ -70,25 +45,35 @@ export default function Build() {
       const mm = gsap.matchMedia();
       const build = () => {
         const tl = gsap.timeline({ defaults: { ease: "none" }, paused: true });
-        // HTML: elements appear, unstyled
+        // HTML: the elements appear, unstyled
         tl.fromTo(".b-h", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.08)
-          .fromTo(".b-p", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.17)
-          .fromTo(".b-btn", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.26)
-          // CSS: the page gets its look
-          .to(".b-scene", { backgroundColor: "#1d1d3c", duration: 0.04 }, 0.37)
-          .to(".b-card", { backgroundColor: "#ffffff", padding: 32, borderRadius: 24, boxShadow: "0 30px 60px rgba(0,0,0,0.4)", duration: 0.06 }, 0.43)
-          .to(".b-h", { fontSize: 34, color: "#12122b", fontWeight: 800, duration: 0.05 }, 0.5)
-          .set(".b-card", { fontFamily: "Bricolage Grotesque, system-ui, sans-serif" }, 0.5)
-          .to(".b-p", { color: "#565878", duration: 0.04 }, 0.56)
-          .to(".b-btn", { backgroundColor: "#7b61ff", color: "#fff", borderRadius: 999, paddingLeft: 20, paddingRight: 20, borderWidth: 0, duration: 0.05 }, 0.59)
-          // JS: it responds
+          .fromTo(".b-price", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.14)
+          .fromTo(".b-switch", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.2)
+          .fromTo(".b-btn-wrap", { opacity: 0 }, { opacity: 1, duration: 0.04 }, 0.26)
+          // CSS: the card gets its look, line by line, and the dark page lands last
+          .to(".b-card", { backgroundColor: "#ffffff", padding: 32, borderRadius: 24, boxShadow: "0 30px 60px rgba(0,0,0,0.4)", duration: 0.06 }, 0.38)
+          .to(".b-h", { fontSize: 20, color: "#565878", duration: 0.04 }, 0.45)
+          .set(".b-card", { fontFamily: "Bricolage Grotesque, system-ui, sans-serif" }, 0.45)
+          .to(".b-price", { fontSize: 40, fontWeight: 800, duration: 0.04 }, 0.5)
+          .set(".b-check", { accentColor: "#6c4fff" }, 0.54)
+          .to(".b-btn", { backgroundColor: "#6c4fff", color: "#fff", borderRadius: 999, paddingLeft: 20, paddingRight: 20, paddingTop: 10, paddingBottom: 10, borderWidth: 0, duration: 0.05 }, 0.58)
+          .to(".b-scene", { backgroundColor: "#1d1d3c", duration: 0.05 }, 0.62)
+          // JS: it responds. A cursor arrives and the switch flips, and the price follows.
           .fromTo(".b-cursor", { opacity: 0, x: 90, y: 70 }, { opacity: 1, x: 0, y: 0, duration: 0.08, ease: "power2.out" }, 0.68);
-        const count = { n: 0 };
-        tl.to(count, { n: 3, ease: "steps(3)", duration: 0.21, onUpdate: () => { const el = root.current?.querySelector(".b-p"); if (el) el.textContent = `Pressed ${Math.round(count.n)} times`; } }, 0.76);
-        [0.77, 0.84, 0.91].forEach((at) => {
-          tl.fromTo(".b-btn", { scale: 0.93 }, { scale: 1, duration: 0.04, ease: "back.out(3)" }, at)
-            .fromTo(".b-ring", { scale: 0.6, opacity: 0.7 }, { scale: 2.4, opacity: 0, duration: 0.05 }, at);
-        });
+        const sw = { t: 0 };
+        const setOn = (on: boolean) => {
+          const box = root.current?.querySelector<HTMLInputElement>(".b-check");
+          const amount = root.current?.querySelector<HTMLElement>(".b-amount");
+          if (box) box.checked = on;
+          if (amount) amount.textContent = on ? "$9" : "$12";
+        };
+        // Driven by progress, not by a one-shot callback, so scrubbing backwards undoes it.
+        tl.to(sw, { t: 1, duration: 0.02, onUpdate: () => setOn(sw.t > 0.5) }, 0.8)
+          .fromTo(".b-amount", { scale: 1.4 }, { scale: 1, duration: 0.06, ease: "back.out(3)", immediateRender: false }, 0.8)
+          .fromTo(".b-save", { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.05 }, 0.82)
+          .fromTo(".b-cursor", { scale: 0.85 }, { scale: 1, duration: 0.04, ease: "back.out(3)", immediateRender: false }, 0.8)
+          // Scroll progress is mapped onto this timeline, so it has to be exactly 1 long.
+          .set({}, {}, 1);
         return tl;
       };
 
@@ -98,7 +83,6 @@ export default function Build() {
           trigger: root.current, start: "top top", end: "+=3400", pin: true, scrub: 0.4, anticipatePin: 1,
           onUpdate: (self) => { tl.progress(self.progress); sync(self.progress); },
         });
-        gsap.set(".b-p", { opacity: 0 });
       });
       mm.add("(prefers-reduced-motion: reduce), (max-width: 1023px)", () => {
         build().progress(1);
@@ -113,6 +97,7 @@ export default function Build() {
     <section ref={root} className="on-dark relative flex min-h-dvh flex-col justify-center overflow-hidden bg-bench text-paper">
       <div className="mx-auto w-full max-w-[1480px] px-5 py-16 md:px-10">
         <h2 className="display max-w-[16ch] text-[clamp(2.4rem,5vw,4.5rem)]">Watch a page get built.</h2>
+        <p className="mt-5 max-w-[56ch] text-xl leading-snug text-paper/75">HTML is the structure. CSS is the look. JavaScript is what happens when you click.</p>
         <div className="mt-10 grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl bg-bed" data-cursor>
             <div className="flex items-center gap-1 px-3 pt-3" role="tablist" aria-label="Files">
@@ -142,16 +127,20 @@ export default function Build() {
             </div>
           </div>
 
-          <div className="b-scene relative grid h-[400px] place-items-center overflow-hidden rounded-2xl bg-white lg:h-auto" style={{ fontFamily: "'Times New Roman', serif" }} role="img" aria-label="The page being built from the code">
-            <div className="b-card text-black">
-              <h3 className="b-h m-0 text-[16px] font-bold">Hello, CodeMe</h3>
-              <p className="b-p my-2 text-[16px]">Pressed 0 times</p>
-              <span className="relative inline-block">
-                <span className="b-ring absolute inset-0 rounded-full border-2 border-violet opacity-0" />
-                <button className="b-btn border border-black/50 bg-zinc-200 px-1.5 py-0.5 text-[14px]" tabIndex={-1}>Press me</button>
+          <div className="b-scene relative grid h-[400px] place-items-center overflow-hidden rounded-2xl bg-white lg:h-auto" style={{ fontFamily: "'Times New Roman', serif" }} role="img" aria-label="The plan card being built from the code">
+            <article className="b-card text-black">
+              <h2 className="b-h m-0 text-[24px] font-bold">Pro</h2>
+              <p className="b-price m-0 text-[16px]"><span className="b-amount inline-block">$12</span> / month</p>
+              <label className="b-switch relative my-1 flex items-center gap-1.5 text-[16px]">
+                <input type="checkbox" className="b-check" tabIndex={-1} readOnly />
+                Pay yearly
+                <MousePointer2 className="b-cursor pointer-events-none absolute -left-1 top-3 fill-ink text-white opacity-0" size={26} aria-hidden />
+              </label>
+              <p className="b-save m-0 mb-2 text-[14px] text-[#565878]" style={{ opacity: 0 }}>You save 25%</p>
+              <span className="b-btn-wrap inline-block">
+                <button className="b-btn border border-black/50 bg-zinc-200 px-1.5 py-0.5 text-[14px]" tabIndex={-1}>Choose Pro</button>
               </span>
-            </div>
-            <MousePointer2 className="b-cursor pointer-events-none absolute left-[54%] top-[62%] fill-ink text-white opacity-0" size={26} aria-hidden />
+            </article>
           </div>
         </div>
         <div className="mt-8 flex gap-2" aria-hidden>
