@@ -33,16 +33,19 @@ Most playgrounds make you pick between **instant and simple** (a blank page that
 - Three CodeMirror 6 editors (HTML, CSS, JavaScript) with Emmet, syntax colours matched to each language, and one-click Prettier formatting
 - Live preview in a sandboxed iframe with a built-in console
 - Console errors point at **your** JavaScript line (`ReferenceError … (JS line 4)`), not the generated document
+- **Accessibility tab** next to the console: missing alt text, unlabelled fields, unnamed buttons and links, skipped headings, duplicate ids and colour contrast, each with its HTML line where it can be found
+- **Compare to image**: lay a screenshot or mockup over the preview (fade, split or difference). The image stays in your browser and is not saved or shared
 - Resizable panels, a mobile layout, and reduced-motion support
 
 **Libraries**
 - **Tailwind CSS v4** toggle (browser build), including `@apply` in the CSS tab
+- With Tailwind on: class-name suggestions inside `class="…"` (variants too), and **To Tailwind**, which previews your plain CSS rewritten as `@apply` before replacing it. Declarations with no utility, media queries and keyframes are left as they are
 - **External scripts and styles**: add up to five https links, loaded in order before your code (Chart.js, GSAP, Lucide, and so on)
 
 **Sharing**
 - Short links at `/p/<slug>`, stored as immutable snapshots
 - Identical code always returns the same link
-- Fork lineage shown in the editor header
+- Fork lineage shown in the editor header, and a **Changes** view with a line diff against the link you opened or the project it was forked from
 - Export any project as a small static site (ZIP)
 
 **Starting points**
@@ -60,8 +63,8 @@ Most playgrounds make you pick between **instant and simple** (a blank page that
 Requires Node 20.19+ (or 22.12+) and npm.
 
 ```bash
-git clone https://github.com/hardikverma22/Code-Me-with-tailwind-reziable-panels.git
-cd Code-Me-with-tailwind-reziable-panels
+git clone https://github.com/hardikverma22/code-me.git
+cd code-me
 npm install
 npm run dev          # http://localhost:5173
 ```
