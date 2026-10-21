@@ -27,6 +27,7 @@ export default function Modal({ title, onClose, children, footer, wide }: Props)
         aria-modal="true"
         aria-labelledby={id}
         tabIndex={-1}
+        data-lenis-prevent=""
         className={`flex max-h-[85dvh] w-full flex-col rounded-2xl bg-bed-raised text-paper shadow-2xl ring-1 ring-rule outline-none ${wide ? "max-w-4xl" : "max-w-xl"}`}
       >
         <header className="flex shrink-0 items-center justify-between px-5 pb-2 pt-4">

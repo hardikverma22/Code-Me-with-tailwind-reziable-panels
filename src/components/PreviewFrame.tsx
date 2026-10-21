@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildSrcDoc, type PreviewMessage, type Sources } from "../lib/buildSrcDoc";
 
 /**
@@ -22,6 +22,7 @@ export default function PreviewFrame({
   sources, debounceMs = 400, onMessage, onRun, interactive = true, className, title = "Preview",
 }: Props) {
   const [settled, setSettled] = useState(sources);
+  const frame = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setSettled(sources), debounceMs);
@@ -37,7 +38,8 @@ export default function PreviewFrame({
   useEffect(() => {
     if (!onMessage) return;
     const handler = (e: MessageEvent<PreviewMessage>) => {
-      if (e.data?.source === "codeme-preview") onMessage(e.data);
+      // Hidden check frames post the same messages; only this frame's belong in the console.
+      if (e.source === frame.current?.contentWindow && e.data?.source === "codeme-preview") onMessage(e.data);
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
@@ -45,6 +47,7 @@ export default function PreviewFrame({
 
   return (
     <iframe
+      ref={frame}
       title={title}
       srcDoc={srcDoc}
       sandbox={SANDBOX}

@@ -9,6 +9,13 @@ export type A11yFinding = {
   /** 0-based position among the document's elements with this tag, and how many there are. */
   tagIndex: number;
   tagCount: number;
+  /** color-contrast: the text and background colours as drawn, and the ratio WCAG asks for. */
+  fg?: [number, number, number];
+  bg?: [number, number, number];
+  need?: number;
+  /** heading-order: the level before the jump and the level it jumped to. */
+  from?: number;
+  to?: number;
 };
 
 /** Posted by the preview iframe when it has finished checking itself. */
@@ -30,11 +37,11 @@ export function runA11yChecks(doc: Document): A11yFinding[] {
     const s = el.outerHTML.slice(0, el.outerHTML.indexOf(">") + 1);
     return s.length > 140 ? s.slice(0, 137) + "..." : s;
   };
-  const add = (rule: A11yFinding["rule"], severity: A11yFinding["severity"], el: Element, message: string) => {
+  const add = (rule: A11yFinding["rule"], severity: A11yFinding["severity"], el: Element, message: string, extra?: Partial<A11yFinding>) => {
     if (out.length >= MAX) return;
     const tag = el.tagName.toLowerCase();
     const same = Array.from(doc.getElementsByTagName(tag)).filter((e) => !e.closest("head"));
-    out.push({ rule, severity, message, snippet: openTag(el), tag, id: el.getAttribute("id"), tagIndex: same.indexOf(el), tagCount: same.length });
+    out.push({ rule, severity, message, snippet: openTag(el), tag, id: el.getAttribute("id"), tagIndex: same.indexOf(el), tagCount: same.length, ...extra });
   };
   const hidden = (el: Element) => {
     for (let e: Element | null = el; e && e !== doc.documentElement; e = e.parentElement) {
@@ -94,7 +101,7 @@ export function runA11yChecks(doc: Document): A11yFinding[] {
   doc.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((h) => {
     if (hidden(h)) return;
     const level = Number(h.tagName[1]);
-    if (last && level > last + 1) add("heading-order", "warning", h, `Heading jumps from h${last} to h${level}. Don't skip levels.`);
+    if (last && level > last + 1) add("heading-order", "warning", h, `Heading jumps from h${last} to h${level}. Don't skip levels.`, { from: last, to: level });
     last = level;
   });
 
@@ -167,7 +174,10 @@ export function runA11yChecks(doc: Document): A11yFinding[] {
     const bold = Number(s.fontWeight) >= 700 || s.fontWeight === "bold";
     const large = px >= 24 || (px >= 18.66 && bold);
     const need = large ? 3 : 4.5;
-    if (r < need) add("color-contrast", "error", el, `Contrast is ${r.toFixed(2)}:1 but ${need}:1 is needed for ${large ? "large" : "normal"} text.`);
+    if (r < need) {
+      const rgb = (c: RGBA): [number, number, number] => [Math.round(c[0]), Math.round(c[1]), Math.round(c[2])];
+      add("color-contrast", "error", el, `Contrast is ${r.toFixed(2)}:1 but ${need}:1 is needed for ${large ? "large" : "normal"} text.`, { fg: rgb(solid), bg: rgb(bg), need });
+    }
   });
 
   return out;

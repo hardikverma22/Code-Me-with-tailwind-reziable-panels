@@ -34,6 +34,7 @@ Most playgrounds make you pick between **instant and simple** (a blank page that
 - Live preview in a sandboxed iframe with a built-in console
 - Console errors point at **your** JavaScript line (`ReferenceError … (JS line 4)`), not the generated document
 - **Accessibility tab** next to the console: missing alt text, unlabelled fields, unnamed buttons and links, skipped headings, duplicate ids and colour contrast, each with its HTML line where it can be found
+- **Fix button** on every console error and accessibility finding. Rules fix the mechanical ones instantly (labels, heading levels, `tabindex`, duplicate ids, colour contrast in the CSS rule that sets it). For the rest, Chrome's built-in on-device model (Gemini Nano) can propose a fix. Either way the change is run in a hidden sandbox first and shown only if the problem is gone and nothing new appeared; you review a diff and choose Apply. See [Verified fixes](#verified-fixes-without-a-server)
 - **Compare to image**: lay a screenshot or mockup over the preview (fade, split or difference). The image stays in your browser and is not saved or shared
 - Resizable panels, a mobile layout, and reduced-motion support
 
@@ -150,9 +151,19 @@ Anyone can call a public endpoint, so the write path is metered rather than trus
 
 **Not covered:** a large distributed attack from many IPs is bounded by the global cap and Turnstile, not eliminated. Old snapshots are not deleted yet, so a retention job is a sensible next step.
 
+## Verified fixes without a server
+
+**The sandbox is the judge, not the model.** A fix from any source (a rule, or Gemini Nano) is applied to a copy of the page and run in a hidden frame with the same sandbox flags as the preview. It is offered only if the problem is gone, no new finding or error appeared, and the page still finishes loading. A guard also turns down fixes that delete elements or text, rewrite most of a tab, or change nothing, since deleting the broken element would otherwise "fix" it. When a try fails, the reason goes back to the model for the next one (up to three).
+
+**Nothing is paid for and nothing leaves the device.** The model is Chrome's Prompt API: Chrome downloads and runs it locally, so there is no key, no account and no server cost. It needs desktop Chrome with enough disk space and memory, so elsewhere you still get the rule-based fixes. The first model use asks before Chrome downloads anything, and the dialog says your code stays on the device. The page, not the sandboxed preview, calls the model, so code you run cannot reach it.
+
+**The model sees one tab, and answers with one tab.** Sending a whole page would make anything bigger than a toy too long for the model's context, so each problem gets only the code that can fix it: a runtime error gets the JavaScript plus the list of element ids, contrast gets the CSS, and the other accessibility problems get the HTML.
+
+**The model answers with one tab, not all three.** Early tests asked for all three tabs back, and a small model reformatted code it was never asked to touch. Asking for exact find-and-replace text failed on copying. Returning the full new code of the single tab it changes, plus a short hint for common runtime errors, gave the best results: on a page with several problems, 23 of 24 attempts passed (17 on the first try), measured with the app's own fix loop in Chrome 155. That is one machine, one model version and a handful of cases, not a general claim.
+
 ## Testing
 
-Unit tests cover the sandbox flags, error-line mapping, Tailwind injection, the share-link codec, and template validity.
+Unit tests cover the sandbox flags, error-line mapping, Tailwind injection, the share-link codec, template validity, the diff, the Tailwind converter, the accessibility checker, and the fix loop (rules checked against the real checker, the verifier, the guard, retries with feedback, and the model engine against a fake `LanguageModel`).
 
 ```bash
 npm test
@@ -166,6 +177,7 @@ The abuse limits were also checked against a deployed endpoint: bad input, overs
 - Production Convex deployment with a locked-down origin
 - Real-time collaboration in a single room (Yjs and `y-codemirror.next`)
 - Social preview images for shared links
+- Fixes for more accessibility rules (unnamed buttons and links still need the model)
 - Accounts, only if a feature needs them
 
 ## Known limits

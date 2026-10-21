@@ -36,7 +36,7 @@ export default function Rail() {
     <section ref={root} className="on-dark relative flex min-h-dvh flex-col justify-center overflow-hidden bg-bench py-20 text-paper">
       <div className="mx-auto flex w-full max-w-[1480px] flex-wrap items-end justify-between gap-4 px-5 md:px-10">
         <h2 className="display max-w-[14ch] text-[clamp(2.4rem,5vw,4.5rem)]">Start from something that runs.</h2>
-        <Link to="/gallery" className="flex items-center gap-1.5 text-lg font-semibold">All {templates.length} templates <ArrowUpRight size={20} aria-hidden /></Link>
+        <Link to="/gallery" className="flex items-center gap-1.5 text-lg font-semibold">Browse all {templates.length} templates <ArrowUpRight size={20} aria-hidden /></Link>
       </div>
       <div ref={track} className="mt-12 flex gap-8 overflow-x-auto px-5 pb-6 md:px-10 lg:overflow-visible lg:pr-[120px]">
         {templates.map((t) => (
