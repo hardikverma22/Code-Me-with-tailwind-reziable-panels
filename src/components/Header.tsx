@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Check, Download, FilePlus2, FolderOpen, GitFork, LayoutGrid, Link2 } from "lucide-react";
+import { Check, Download, FilePlus2, FolderOpen, GitCompareArrows, GitFork, LayoutGrid, Link2 } from "lucide-react";
 import { useProject } from "../store/project";
 import { useMine, titleFromHtml } from "../store/mine";
 import { encodeShare } from "../lib/share";
@@ -8,6 +8,7 @@ import { canShare, ShareError, shareProject } from "../lib/shareApi";
 import { exportProject } from "../lib/exportProject";
 import Logo from "./Logo";
 import SettingsPanel from "./SettingsPanel";
+import DiffDialog from "./DiffDialog";
 
 type ShareState = "idle" | "saving" | "copied" | "error";
 
@@ -17,6 +18,7 @@ export default function Header() {
   const [state, setState] = useState<ShareState>("idle");
   const [message, setMessage] = useState("");
   const [same, setSame] = useState(false);
+  const [diffing, setDiffing] = useState(false);
 
   const share = async () => {
     const { html, css, js, tailwind, resources, parentSlug } = useProject.getState();
@@ -71,6 +73,11 @@ export default function Header() {
         <button className={link} onClick={() => { reset(); history.replaceState(null, "", "/new"); }}>
           <FilePlus2 size={16} aria-hidden /> <span className="hidden sm:inline">New</span>
         </button>
+        {parentSlug && canShare && (
+          <button className={link} onClick={() => setDiffing(true)} title="See what you changed since this link">
+            <GitCompareArrows size={16} aria-hidden /> <span className="hidden lg:inline">Changes</span>
+          </button>
+        )}
         <button className={link} onClick={() => exportProject(useProject.getState())} title="Download as a small static project">
           <Download size={16} aria-hidden /> <span className="hidden lg:inline">Export</span>
         </button>
@@ -85,6 +92,7 @@ export default function Header() {
           {label}
         </button>
       </nav>
+      {diffing && <DiffDialog onClose={() => setDiffing(false)} />}
       <span className="sr-only" role="status">{state === "copied" ? "Link copied to clipboard" : state === "error" ? message : ""}</span>
       {state === "error" && (
         <p className="absolute right-4 top-14 z-20 max-w-xs rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-ink shadow-lg" role="alert">{message}</p>

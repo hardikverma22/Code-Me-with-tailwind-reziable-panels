@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Wand2 } from "lucide-react";
+import { Replace, Wand2 } from "lucide-react";
 import Editor from "./Editor";
+import TailwindConvertDialog from "./TailwindConvertDialog";
 import { formatCode, type Language } from "../lib/format";
 import { useProject } from "../store/project";
 
@@ -13,8 +14,11 @@ export const inkFor: Record<Language, { name: string; dot: string; text: string;
 export default function EditorPane({ language }: { language: Language }) {
   const code = useProject((s) => s[language]);
   const setCode = useProject((s) => s.setCode);
+  const tailwind = useProject((s) => Boolean(s.tailwind));
   const [busy, setBusy] = useState(false);
+  const [converting, setConverting] = useState(false);
   const ink = inkFor[language];
+  const action = "flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-fade transition-colors hover:bg-bed-raised hover:text-paper disabled:opacity-50";
 
   const format = async () => {
     setBusy(true);
@@ -29,18 +33,21 @@ export default function EditorPane({ language }: { language: Language }) {
           <span className={`size-2.5 rounded-full ${ink.dot}`} aria-hidden />
           {ink.name}
         </span>
-        <button
-          onClick={format}
-          disabled={busy}
-          className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-fade transition-colors hover:bg-bed-raised hover:text-paper disabled:opacity-50"
-          title={`Format ${ink.name} with Prettier`}
-        >
-          <Wand2 size={14} aria-hidden /> Format
-        </button>
+        <div className="flex items-center gap-1">
+          {language === "css" && tailwind && (
+            <button onClick={() => setConverting(true)} className={action} title="Rewrite plain rules as Tailwind @apply">
+              <Replace size={14} aria-hidden /> To Tailwind
+            </button>
+          )}
+          <button onClick={format} disabled={busy} className={action} title={`Format ${ink.name} with Prettier`}>
+            <Wand2 size={14} aria-hidden /> Format
+          </button>
+        </div>
       </header>
       <div className="min-h-0 flex-1 pb-2">
-        <Editor language={language} value={code} onChange={(v) => setCode(language, v)} />
+        <Editor language={language} value={code} onChange={(v) => setCode(language, v)} tailwind={tailwind} />
       </div>
+      {converting && <TailwindConvertDialog onClose={() => setConverting(false)} />}
     </section>
   );
 }

@@ -1,14 +1,17 @@
-export type Resource = { kind: "script" | "style"; url: string };
+import { runA11yChecks, type A11yMessage } from "./a11y";
+
+export type Resource ={ kind: "script" | "style"; url: string };
 export type Sources = { html: string; css: string; js: string; tailwind?: boolean; resources?: Resource[] };
 
 const attr = (u: string) => u.replace(/"/g, "%22").replace(/</g, "%3C");
 
-/** Posted by the preview iframe to the parent window. */
-export type PreviewMessage = {
+/** Console output posted by the preview iframe to the parent window. */
+export type ConsoleMessage = {
   source: "codeme-preview";
   kind: "log" | "info" | "warn" | "error" | "debug";
   args: string[];
 };
+export type PreviewMessage = ConsoleMessage | A11yMessage;
 
 /** Tailwind's browser build, pinned. It is meant for development, so the editor says so. */
 export const TAILWIND_SRC = "https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.1.11";
@@ -17,7 +20,7 @@ const MARK = "/*__CODEME_JS__*/";
 
 // Runs inside the sandboxed iframe: forwards console output and uncaught errors to the parent.
 // Errors are reported against the user's JavaScript line, not the generated document's.
-const bridge = `(${function () {
+const bridge = `(${function (runChecks: (doc: Document) => unknown[]) {
   const send = (kind: string, args: unknown[]) => {
     const text = args.map((a) => {
       if (a instanceof Error) return a.stack || a.message;
@@ -41,7 +44,15 @@ const bridge = `(${function () {
     send("error", [e.message + where]);
   });
   window.addEventListener("unhandledrejection", (e) => send("error", ["Unhandled rejection: " + String(e.reason)]));
-}.toString()})();`;
+  // Accessibility check: once the page and its scripts have had a moment to build the DOM.
+  window.addEventListener("load", () => {
+    setTimeout(() => {
+      let findings: unknown[] = [];
+      try { findings = runChecks(document); } catch { /* the checker must never break the page */ }
+      parent.postMessage({ source: "codeme-preview", kind: "a11y", findings }, "*");
+    }, 700);
+  });
+}.toString()})(${runA11yChecks.toString()});`;
 
 // Keep user code from closing our tags early.
 const escapeClose = (code: string, tag: "script" | "style") =>

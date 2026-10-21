@@ -8,18 +8,21 @@ import { keymap } from "@codemirror/view";
 import { Prec } from "@codemirror/state";
 import { abbreviationTracker, expandAbbreviation } from "@emmetio/codemirror6-plugin";
 import type { Language } from "../lib/format";
+import { tailwindCompletion } from "../lib/tailwindComplete";
 
-type Props = { language: Language; value: string; onChange: (value: string) => void };
+type Props = { language: Language; value: string; onChange: (value: string) => void; tailwind?: boolean };
 
-export default function Editor({ language, value, onChange }: Props) {
+export default function Editor({ language, value, onChange, tailwind }: Props) {
   const extensions = useMemo(() => {
     if (language === "js") return [inkTheme, javascript()];
     const emmet = [
       abbreviationTracker(),
       Prec.highest(keymap.of([{ key: "Tab", run: expandAbbreviation }])),
     ];
-    return language === "html" ? [inkTheme, html(), ...emmet] : [inkTheme, css(), ...emmet];
-  }, [language]);
+    return language === "html"
+      ? [inkTheme, html(), ...(tailwind ? [tailwindCompletion] : []), ...emmet]
+      : [inkTheme, css(), ...emmet];
+  }, [language, tailwind]);
 
   return (
     <CodeMirror

@@ -20,7 +20,7 @@ export default function Close() {
       </div>
       <footer className="relative mx-auto flex max-w-[1480px] flex-wrap items-center justify-between gap-4 px-5 pb-8 text-sm text-paper/70 md:px-10">
         <span>CodeMe is free. Your work autosaves in this browser.</span>
-        <a href="https://github.com/hardikverma22/Code-Me-with-tailwind-reziable-panels" className="text-paper">Source on GitHub</a>
+        <a href="https://github.com/hardikverma22/code-me" className="text-paper">Source on GitHub</a>
       </footer>
     </section>
   );

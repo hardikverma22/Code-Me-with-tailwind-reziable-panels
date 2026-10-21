@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type { PreviewMessage } from "../lib/buildSrcDoc";
+import type { ConsoleMessage } from "../lib/buildSrcDoc";
 
-export type ConsoleEntry = { id: number; kind: PreviewMessage["kind"]; text: string };
+export type ConsoleEntry = { id: number; kind: ConsoleMessage["kind"]; text: string };
 
 type ConsoleState = {
   entries: ConsoleEntry[];
-  push: (kind: PreviewMessage["kind"], args: string[]) => void;
+  push: (kind: ConsoleMessage["kind"], args: string[]) => void;
   clear: () => void;
 };
 

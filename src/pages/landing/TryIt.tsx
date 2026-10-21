@@ -62,7 +62,10 @@ export default function TryIt() {
   };
 
 
-  const onMessage = useCallback((m: PreviewMessage) => setLogs((l) => [...l, { id: logId++, kind: m.kind, text: m.args.join(" ") }].slice(-40)), []);
+  const onMessage = useCallback((m: PreviewMessage) => {
+    if (m.kind === "a11y") return;
+    setLogs((l) => [...l, { id: logId++, kind: m.kind, text: m.args.join(" ") }].slice(-40));
+  }, []);
   const onRun = useCallback(() => setLogs([]), []);
 
   const chip = "rounded-full border border-paper/15 px-4 py-2 text-sm font-semibold text-paper/85 transition-colors hover:border-paper/50 hover:text-paper";
